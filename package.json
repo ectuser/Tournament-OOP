@@ -1,0 +1,30 @@
+{
+    "name": "shift-borsch-api",
+    "version": "1.0.0",
+    "description": "backend",
+    "main": "src",
+    "scripts": {
+        "start": "node .",
+        "dev": "nodemon .",
+        "debug": "node --inspect ."
+    },
+    "_moduleAliases": {
+        "~": "src/"
+    },
+    "nodemonConfig": {
+        "ignore": [
+            "public/*"
+        ]
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@koa/cors": "2",
+        "color-log": "^0.0.2",
+        "koa": "^2.6.2",
+        "koa-router": "^7.4.0",
+        "koa-static": "^5.0.0",
+        "module-alias": "^2.1.0",
+        "raw-body": "^2.3.3"
+    }
+}
