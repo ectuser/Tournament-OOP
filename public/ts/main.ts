@@ -34,6 +34,7 @@ class Ui {
 
         if (node.getAttribute("data-type") === table.getAttribute("data-type")){
             this.ShowClicked(table, statistics, settings);
+            this.Request("/show-table");
         }
         else if (node.getAttribute("data-type") === statistics.getAttribute("data-type")){
             this.ShowClicked(statistics, table, settings);
@@ -54,6 +55,20 @@ class Ui {
         if (displayNoneSecond.style.display === ""){
             displayNoneSecond.style.display = "none";
         }
+
+    }
+
+    private Request(url : string){
+        var condition : Number = 0;
+
+
+        $.get( url )
+        .done(function( data : object ) {
+            
+        })
+        .fail(function(){
+            
+        })
 
     }
 }

@@ -20,34 +20,22 @@
 				<table class="tournament-table display-block" data-type="stangings">
 					<thead>
 						<tr>
-							<td>#</th>
-							<td>Team</th>
-							<td>Points</th>
-							<td>Year</th>
+							<td>#</td>
+							<td>Team</td>
+							<td>Points</td>
+							<td>Year</td>
 						</tr>
 					</thead>
 				
 					<tbody>
-						<tr>
-							<td>1</td>
-							<td>Honda</td>
-							<td>Accord</td>
-							<td>2009</td>
-						</tr>
-				
-						<tr>
-							<td>2</td>
-							<td>Toyota</td>
-							<td>Camry</td>
-							<td>2012</td>
-						</tr>
-				
-						<tr>
-							<td>3</td>
-							<td>Hyundai</td>
-							<td>Elantra</td>
-							<td>2010</td>
-						</tr>
+						<% teams.forEach(function(el){ %>
+							<tr>
+								<td>N</td>
+								<td><a href="#"><%= el %></a></td>
+								<td>Points</td>
+								<td>Year</td>
+							</tr>
+						<% }) %>
 					</tbody>
 				</table>
 
@@ -61,5 +49,6 @@
 		</main>
 	</body>
 
+	<script src="../public/js/jquery-3.4.1.min.js"></script>
 	<script src="../public/ts/main.js"></script>
 </html>
