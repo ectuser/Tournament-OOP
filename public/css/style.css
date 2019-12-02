@@ -53,3 +53,9 @@ main > div.content{
     flex: 5;
     background: #FEFEFE;
 }
+main > div.content table.tournament-table {
+    width: 100%;
+}
+main > div.content table.tournament-table th, main > div.content table.tournament-table td{
+    border-bottom: 1px solid #2B3D52;
+}

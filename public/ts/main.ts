@@ -27,16 +27,35 @@ class Ui {
     private AddActiveClass(node : HTMLElement){
         console.log(node);
         node.classList.add("active");
+
+        var table : HTMLElement = document.querySelector("body > main > div.content > table") as HTMLElement;
+        var statistics : HTMLElement = document.querySelector("body > main > div.content > div.tournament-statistics") as HTMLElement;
+        var settings : HTMLElement = document.querySelector("body > main > div.content > div.tournament-settings") as HTMLElement;
+
+        if (node.getAttribute("data-type") === table.getAttribute("data-type")){
+            this.ShowClicked(table, statistics, settings);
+        }
+        else if (node.getAttribute("data-type") === statistics.getAttribute("data-type")){
+            this.ShowClicked(statistics, table, settings);
+        }
+        else if (node.getAttribute("data-type") === settings.getAttribute("data-type")){
+            this.ShowClicked(settings, table, statistics);
+        }
+        
+    }
+
+    private ShowClicked(activeNode : HTMLElement, displayNoneFirst : HTMLElement, displayNoneSecond : HTMLElement){
+        if (activeNode.style.display === "none"){
+            activeNode.style.display = "";
+        }
+        if (displayNoneFirst.style.display === ""){
+            displayNoneFirst.style.display = "none";
+        }
+        if (displayNoneSecond.style.display === ""){
+            displayNoneSecond.style.display = "none";
+        }
+
     }
 }
 
 var firstScreen = new Ui();
-
-
-class Tournament{
-    private amountOfTeams : number;
-
-    public getAmountOfTeams() : number{
-        return this.amountOfTeams;
-    }
-}
