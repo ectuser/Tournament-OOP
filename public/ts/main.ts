@@ -31,3 +31,12 @@ class Ui {
 }
 
 var firstScreen = new Ui();
+
+
+class Tournament{
+    private amountOfTeams : number;
+
+    public getAmountOfTeams() : number{
+        return this.amountOfTeams;
+    }
+}
