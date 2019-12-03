@@ -9,18 +9,13 @@
 	<body>
 		<header>FOOTBALL TOURNAMENT</header>
 		<main>
-			<div class="nav-bar">
-				<ul>
-					<li data-type="stangings">Show current standings</li>
-					<li data-type="statistics">Show current statistics</li>
-					<li data-type="settings">Change tournament settings</li>
-				</ul>
-			</div>
+			<%- include("blocks/nav-bar.ejs") %>
 			<div class="content">
 				<table class="tournament-table display-block" data-type="stangings">
 					<thead>
 						<tr>
 							<td>#</td>
+							<td>id</td>
 							<td>Team</td>
 							<td>Points</td>
 							<td>Year</td>
@@ -30,21 +25,15 @@
 					<tbody>
 						<% let counter = 0; teams.forEach(function(el){ %>
 							<tr>
-								<td><% counter.toString(); %></td>
-								<td><a href="#"><%= el.name %></a></td>
+								<td><%= counter.toString();%></td>
+								<td><%= el.id.toString(); %></td>
+								<td><a href="/team/<%= el.id.toString();%>"><%= el.name %></a></td>
 								<td><%= el.points%></td>
 								<td>Year</td>
 							</tr>
 						<% counter++; }) %>
 					</tbody>
 				</table>
-
-				<div class="tournament-statistics display-none" data-type="statistics">
-					stats
-				</div>
-				<div class="tournament-settings display-none" data-type="settings">
-					settings
-				</div>
 			</div>
 		</main>
 	</body>

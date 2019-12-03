@@ -30,7 +30,13 @@ var Ui = /** @class */ (function () {
         var settings = document.querySelector("body > main > div.content > div.tournament-settings");
         if (node.getAttribute("data-type") === table.getAttribute("data-type")) {
             this.ShowClicked(table, statistics, settings);
-            this.Request("/show-table");
+            $.ajax("/show-table")
+                .done(function (data) {
+                console.log(data);
+            })
+                .fail(function () {
+                console.log("failed");
+            });
         }
         else if (node.getAttribute("data-type") === statistics.getAttribute("data-type")) {
             this.ShowClicked(statistics, table, settings);
@@ -49,12 +55,6 @@ var Ui = /** @class */ (function () {
         if (displayNoneSecond.style.display === "") {
             displayNoneSecond.style.display = "none";
         }
-    };
-    Ui.prototype.Request = function (url) {
-        $.get(url)
-            .done(function (data) {
-            console.log(data);
-        });
     };
     return Ui;
 }());
