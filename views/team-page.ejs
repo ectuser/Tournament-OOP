@@ -11,13 +11,36 @@
 		<main>
 			<%- include("blocks/nav-bar.ejs") %>
             <div class="content">            
-                <div class="header"><%= teams[0][0].name %></div>
-                <div class="team-players">Players:
-                    <ul>
-                        <% for (var i of teams[1]){ %>
-                        <li><a href="#"><%= i.name %></a></li>
-                        <% } %>
-                    </ul>
+				<div class="header"><%= team.name %></div>
+				<div class="manager"><%= team.manager.name %></div>
+                <div class="team-players">
+					<table class="tournament-table">
+						<thead>
+							<tr>
+								<td>#</td>
+								<td>id</td>
+								<td>name</td>
+								<td>Goals</td>
+								<td>Assists</td>
+								<td>Yellow Cards</td>
+								<td>Red Cards</td>
+							</tr>
+						</thead>
+					
+						<tbody>
+							<% let counter = 0; for (var i of players){ %>
+								<tr>
+									<td><%= counter.toString();%></td>
+									<td><%= i.id.toString(); %></td>
+									<td><a href="/player/<%= i.id.toString();%>"><%= i.name %></a></td>
+									<td><%= i.goals%></td>
+									<td><%= i.assists%></td>
+									<td><%= i.yellowcards%></td>
+									<td><%= i.redcards%></td>
+								</tr>
+							<% counter++; } %>
+						</tbody>
+					</table>
                 </div>
             </div>
 		</main>
