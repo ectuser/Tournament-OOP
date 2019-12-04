@@ -12,7 +12,7 @@
 			<%- include("blocks/nav-bar.ejs") %>
             <div class="content">            
 				<div class="header"><%= team.name %></div>
-				<div class="manager"><%= team.manager.name %></div>
+				<div class="manager"> <a href="/manager/<%= team.manager.id %>"><%= team.manager.name %></a></div>
                 <div class="team-players">
 					<table class="tournament-table">
 						<thead>

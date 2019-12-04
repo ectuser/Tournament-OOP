@@ -24,6 +24,7 @@ class Server{
     this.GetMainPage();
     this.GetTable();
     this.GetTeamById();
+    this.GetCreateNewMatch();
     this.ListenPort();
     
   }
@@ -71,6 +72,16 @@ class Server{
         let players : Array<Player> = this.ParsePlayers(rowPlayersData);
         
         res.render('team-page.ejs', { team : team, players : players });
+      })
+    })
+  }
+
+  private GetCreateNewMatch(){
+    this.app.get("/create-match", (req, res) => {
+      con.query(`SELECT * FROM team`, (err : Error, result : Array<ITeam>) => {
+        if (err) throw err;
+        let teams : Array<Team> = this.ParseTeams(result);
+        res.render('create-match.ejs', { teams : teams });
       })
     })
   }

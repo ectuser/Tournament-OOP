@@ -1,70 +1,130 @@
 class Ui {
-    private navigateLis : NodeListOf<HTMLElement>;
+    private url : string;
 
-    constructor (){
-        this.navigateLis = document.querySelectorAll<HTMLElement>("body > main > div.nav-bar > ul > li");
-        console.log(this.navigateLis);
-        this.InitLiClicks();
+    constructor(){
+        this.url = window.location.href; 
+        console.log(this.url);
+        this.DefinePage();
     }
 
-    private InitLiClicks() {
-        for (let i = 0; i < this.navigateLis.length; i++){
-            this.navigateLis[i].addEventListener("click", (event : MouseEvent) => {
-                this.DisableActiveClass();
-                this.AddActiveClass(event.target as HTMLElement);
-            })
+    private DefinePage(){
+        if (this.url.indexOf("show-table") !== -1){
+
+        }
+        else if (this.url.indexOf("show-statistics") !== -1){
+
+        }
+        else if (this.url.indexOf("create-match") !== -1){
+            let matchPage : CreateMatchUI = new CreateMatchUI();
         }
     }
-    private DisableActiveClass(){
-        this.navigateLis.forEach(function(el : HTMLElement){
-            el.classList.forEach(function(oneClass : string){
-                if (oneClass == "active"){
-                    el.classList.remove("active");
-                }
-            })
+
+}
+
+class CreateMatchUI{
+    private readonly firstCol : HTMLElement;
+    private readonly secondCol : HTMLElement;
+    private firstColTeams : NodeListOf<HTMLElement>;
+    private secondColTeams : NodeListOf<HTMLElement>;
+    private readonly submitButton : HTMLElement;
+
+
+    constructor(){
+        this.firstColTeams = document.querySelectorAll<HTMLElement>("body > main > div.content > div.select-teams > div.first-team > div.team");
+        this.secondColTeams = document.querySelectorAll<HTMLElement>("body > main > div.content > div.select-teams > div.second-team > div.team");
+
+        this.firstCol = document.querySelector("body > main > div.content > div.select-teams > div.first-team") as HTMLElement;
+        this.secondCol = document.querySelector("body > main > div.content > div.select-teams > div.second-team") as HTMLElement;
+
+        this.submitButton = document.querySelector("body > main > div.content > div.select-teams-button") as HTMLElement;
+
+        this.AddClicksToTeams(this.firstColTeams, this.firstCol);
+        this.AddClicksToTeams(this.secondColTeams, this.secondCol);
+        this.SubmitButtonClick();
+
+    }
+
+    private AddClicksToTeams(arr : NodeListOf<HTMLElement>, col : HTMLElement){
+        arr.forEach((el : HTMLElement) => {
+            el.addEventListener("click", (event) =>{
+                let ev = event.target as Element;
+                console.log(ev);
+                this.ClickFunction(col, ev);
+            });
         })
     }
-    private AddActiveClass(node : HTMLElement){
-        console.log(node);
-        node.classList.add("active");
-
-        var table : HTMLElement = document.querySelector("body > main > div.content > table") as HTMLElement;
-        var statistics : HTMLElement = document.querySelector("body > main > div.content > div.tournament-statistics") as HTMLElement;
-        var settings : HTMLElement = document.querySelector("body > main > div.content > div.tournament-settings") as HTMLElement;
-
-        if (node.getAttribute("data-type") === table.getAttribute("data-type")){
-            this.ShowClicked(table, statistics, settings);
-            
-            $.ajax("/show-table")
-            .done(function(data : Object){
-                console.log(data);
-            })
-            .fail(function(){
-                console.log("failed");
-            })
-
-        }
-        else if (node.getAttribute("data-type") === statistics.getAttribute("data-type")){
-            this.ShowClicked(statistics, table, settings);
-        }
-        else if (node.getAttribute("data-type") === settings.getAttribute("data-type")){
-            this.ShowClicked(settings, table, statistics);
-        }
-        
+    private ClickFunction(col : HTMLElement, el : Element){
+        this.DisableAllTeams(col);
+        el.classList.add("active");
     }
 
-    private ShowClicked(activeNode : HTMLElement, displayNoneFirst : HTMLElement, displayNoneSecond : HTMLElement){
-        if (activeNode.style.display === "none"){
-            activeNode.style.display = "";
-        }
-        if (displayNoneFirst.style.display === ""){
-            displayNoneFirst.style.display = "none";
-        }
-        if (displayNoneSecond.style.display === ""){
-            displayNoneSecond.style.display = "none";
-        }
-
+    private DisableAllTeams(col : HTMLElement){
+        let teams = col.querySelectorAll<HTMLElement>("div.team");
+        teams.forEach((el : HTMLElement) => {
+            if (el.className.indexOf("active")){
+                el.classList.remove("active");
+            }
+        })
     }
+
+    private SubmitButtonClick(){
+        this.submitButton.addEventListener("click", () => {
+            console.log("button click");
+            this.TeamsCheck();
+        })
+    }
+
+    private TeamsCheck(){
+        let firstTeamId : string = "-1";
+        let secondTeamId : string = "-1";
+
+
+        let firstCondition : boolean = false;
+        let firstCounter : number = 0;
+
+        let secondCondition : boolean = false;
+        let secondCounter : number = 0;
+
+
+        this.firstColTeams.forEach((el : HTMLElement) => {
+            if (el.className.indexOf("active") !== -1){
+                firstTeamId = el.getAttribute("data-id") as string;
+            }
+            if (firstCounter === this.firstColTeams.length - 1){
+                firstCondition = true;
+            }
+            firstCounter++;
+        });
+        this.secondColTeams.forEach((el : HTMLElement) => {
+            if (el.className.indexOf("active")  !== -1){
+                secondTeamId = el.getAttribute("data-id") as string;
+            }
+            if (secondCounter === this.secondColTeams.length - 1){
+                secondCondition = true;
+            }
+            secondCounter++;
+        })
+
+        let inter = setInterval(() =>{
+            if (firstCondition && secondCondition){
+
+                clearInterval(inter);
+
+                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId){
+                    console.log(firstTeamId, secondTeamId);
+                    alert("Choose different teams from each column!");
+                    // this.TeamsCheck();
+                    return;
+                }
+                else {
+                    alert("created");
+                }
+            }
+        })
+    }
+
+
+
 }
 
 var firstScreen = new Ui();

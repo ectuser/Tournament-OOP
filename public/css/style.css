@@ -59,3 +59,24 @@ main > div.content table.tournament-table {
 main > div.content table.tournament-table th, main > div.content table.tournament-table td{
     border-bottom: 1px solid #2B3D52;
 }
+
+main > div.content .select-teams{
+    display: flex;
+}
+main > div.content .select-teams > .first-team, main > div.content .select-teams > .second-team{
+    flex: 1;
+    background: darkcyan;
+}
+main > div.content .select-teams > .first-team > .team, main > div.content .select-teams > .second-team > .team{
+    padding-bottom: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+main > div.content .select-teams > .first-team > .team.active, main > div.content .select-teams > .second-team > .team.active{ 
+    background: cornflowerblue;
+}
+body > main > div.content > div.select-teams-button{
+    cursor: pointer;
+    text-align: center;
+    
+}
