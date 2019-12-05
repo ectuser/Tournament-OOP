@@ -30,6 +30,7 @@ class Server{
     this.GetTeamById();
     this.GetCreateNewMatch();
     this.PostCreateNewMatch();
+    this.GetMatchById();
     this.ListenPort();
     
   }
@@ -60,9 +61,8 @@ class Server{
 
   private GetTeamById(){
     this.app.get("/team/:id", (req, res) => {
-      var urlStr : string = req.url;
-      var idStr : Array<string> = urlStr.split("/"); 
-      var id : number = parseInt(idStr[2], 10);
+      let idStr : string = req.params.id;
+      let id = parseInt(idStr);
     
       let team : Team;
       let players : Array<Player>
@@ -89,8 +89,22 @@ class Server{
       this.repository.GetTeamsAndPlayers(firstTeamId, (firstTeam : Team, firstTeamPlayers : Array<Player>) => {
         this.repository.GetTeamsAndPlayers(secondTeamId, (secondTeam : Team, secondTeamPlayers : Array<Player>) => {
 
+          let match : Match = new Match(firstTeamId, secondTeamId, new Date, 0, 0);
+          this.repository.GetTeamsAmount((id : number) =>{
+            match.id = id + 1;
+            console.log(match.id);
+
+            res.redirect(`/match/${match.id}`);
+          });
+
         })
       });
+    })
+  }
+
+  private GetMatchById(){
+    this.app.get("/match/:id", (req, res) => {
+      console.log("Hello, match ", req.params.id);
     })
   }
 
@@ -159,7 +173,43 @@ class Repository{
         callback(team, players);
       })
   }
+  public GetTeamsAmount(callback : Function){
+    con.query("SELECT * FROM team", (err : Error, result : Array<Object>) => {
+      if (err) throw err;
+      let amount = result.length;
+      callback(amount);
+    })
+  }
   // public Get
+
+}
+
+class Match{
+  private _firstTeamId : number;
+  private _secondTeamId : number;
+  private _id : number = -1;
+  private _date : Date;
+  private _firstTeamScore : number;
+  private _secondTeamScore : number;
+
+  get id(){
+    return this._id;
+  }
+  
+  set id(id : number){
+    this._id = id;
+  }
+
+  constructor(firstTeamId : number, secondTeamId : number, date : Date, firstTeamScore : number, secondTeamScore : number){
+    this._firstTeamId = firstTeamId;
+    this._secondTeamId = secondTeamId;
+    this._date = date;
+    this._firstTeamScore = firstTeamScore;
+    this._secondTeamScore = secondTeamScore;
+    
+  }
+
+
 
 }
 
