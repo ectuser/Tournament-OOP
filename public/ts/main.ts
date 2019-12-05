@@ -1,3 +1,5 @@
+// import { parse } from "querystring";
+
 class Ui {
     private url : string;
 
@@ -118,10 +120,17 @@ class CreateMatchUI{
                 }
                 else {
                     alert("created");
+                    let firstTeamIdNumber : number = parseInt(firstTeamId);
+                    let secondTeamIdNumber : number = parseInt(secondTeamId);
+                    let teams : Array<number> = [firstTeamIdNumber, secondTeamIdNumber]
+                    $.post("/create-match", { data : teams });
                 }
             }
         })
+
+
     }
+
 
 
 

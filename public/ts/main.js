@@ -1,3 +1,4 @@
+// import { parse } from "querystring";
 var Ui = /** @class */ (function () {
     function Ui() {
         this.url = window.location.href;
@@ -92,6 +93,10 @@ var CreateMatchUI = /** @class */ (function () {
                 }
                 else {
                     alert("created");
+                    var firstTeamIdNumber = parseInt(firstTeamId);
+                    var secondTeamIdNumber = parseInt(secondTeamId);
+                    var teams = [firstTeamIdNumber, secondTeamIdNumber];
+                    $.post("/create-match", { data: teams });
                 }
             }
         });
