@@ -76,31 +76,21 @@ class Server{
 
   private GetCreateNewMatch(){
     this.app.get("/create-match", (req, res) => {
-      con.query(`SELECT * FROM team`, (err : Error, result : Array<ITeam>) => {
-        if (err) throw err;
-        let teams : Array<Team> = this.parse.ParseTeams(result);
+      this.repository.GetTeams((teams : Array<Team>) => {
         res.render('create-match.ejs', { teams : teams });
       })
     })
   }
 
-  private PostCreateNewMatch(){
-    this.app.post("/create-match", (req, res) => {
+	private PostCreateNewMatch(){
+		this.app.post("/create-match", (req, res) => {
       let firstTeamId : number = req.body.data[0];
       let secondTeamId : number = req.body.data[1];
-      let sqlReq = `SELECT * FROM playerinteam join player on player.id=playerinteam.playerid WHERE playerinteam.teamid=${firstTeamId};
-                  SELECT * FROM playerinteam join player on player.id=playerinteam.playerid WHERE playerinteam.teamid=${secondTeamId};`;
-      con.query(sqlReq, (err : Error, results : Array<Array<Object>>) => {
-        if (err) throw err;
+      this.repository.GetTeamsAndPlayers(firstTeamId, (firstTeam : Team, firstTeamPlayers : Array<Player>) => {
+        this.repository.GetTeamsAndPlayers(secondTeamId, (secondTeam : Team, secondTeamPlayers : Array<Player>) => {
 
-        let rowFirstTeamPlayersData : Array<IPlayer> = results[0] as Array<IPlayer>;
-        let rowSecondTeamPlayersData : Array<IPlayer> = results[1] as Array<IPlayer>;
-
-        let firstTeamPlayers : Array<Player> = this.parse.ParsePlayers(rowFirstTeamPlayersData);
-        let secondTeamPlayers : Array<Player> = this.parse.ParsePlayers(rowSecondTeamPlayersData);
-
-        console.log(firstTeamPlayers, secondTeamPlayers);
-      })
+        })
+      });
     })
   }
 
@@ -169,6 +159,7 @@ class Repository{
         callback(team, players);
       })
   }
+  // public Get
 
 }
 
