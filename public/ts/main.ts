@@ -120,20 +120,31 @@ class CreateMatchUI{
                 }
                 else {
                     alert("created");
+                    let date : Date = new Date((document.querySelector("#start") as HTMLInputElement).value);
+                    console.log(date);
                     let firstTeamIdNumber : number = parseInt(firstTeamId);
                     let secondTeamIdNumber : number = parseInt(secondTeamId);
                     let teams : Array<number> = [firstTeamIdNumber, secondTeamIdNumber]
-                    $.post("/create-match", { data : teams });
+                    $.post("/create-match", { data : teams, date : date}, (message : Message) => {
+                        console.log(message);
+                        if (message.message === "create-events"){
+                            window.open(`http://localhost:3000/match/${message.data}`);
+                        }
+                    })
+                         
                 }
             }
         })
-
-
     }
-
-
-
-
 }
+
+class Message{
+    public message : string;
+    public data : number;
+    constructor(message : string, data : number){
+      this.data = data;
+      this.message = message;
+    }
+  }
 
 var firstScreen = new Ui();

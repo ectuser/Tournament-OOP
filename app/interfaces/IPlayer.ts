@@ -1,4 +1,4 @@
-interface IPlayer{
+export interface IPlayer{
     id : number;
     name : string;
     goals : number;

@@ -93,14 +93,28 @@ var CreateMatchUI = /** @class */ (function () {
                 }
                 else {
                     alert("created");
+                    var date = new Date(document.querySelector("#start").value);
+                    console.log(date);
                     var firstTeamIdNumber = parseInt(firstTeamId);
                     var secondTeamIdNumber = parseInt(secondTeamId);
                     var teams = [firstTeamIdNumber, secondTeamIdNumber];
-                    $.post("/create-match", { data: teams });
+                    $.post("/create-match", { data: teams, date: date }, function (message) {
+                        console.log(message);
+                        if (message.message === "create-events") {
+                            window.open("http://localhost:3000/match/" + message.data);
+                        }
+                    });
                 }
             }
         });
     };
     return CreateMatchUI;
+}());
+var Message = /** @class */ (function () {
+    function Message(message, data) {
+        this.data = data;
+        this.message = message;
+    }
+    return Message;
 }());
 var firstScreen = new Ui();
