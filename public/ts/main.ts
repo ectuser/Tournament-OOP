@@ -112,7 +112,7 @@ class CreateMatchUI{
 
                 clearInterval(inter);
 
-                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || (document.querySelector("#start") as HTMLInputElement).value == ""){
+                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || (document.querySelector("#match-date-time-input") as HTMLInputElement).value == ""){
                     console.log(firstTeamId, secondTeamId);
                     alert("Choose different teams from each column!");
                     // this.TeamsCheck();
@@ -120,7 +120,8 @@ class CreateMatchUI{
                 }
                 else {
                     alert("created");
-                    let date : Date = new Date((document.querySelector("#start") as HTMLInputElement).value);
+                    let date : Date = new Date((document.querySelector("#match-date-time-input") as HTMLInputElement).value);
+                    let dateString : string = (document.querySelector("#match-date-time-input") as HTMLInputElement).value;
                     console.log(date);
                     let firstTeamIdNumber : number = parseInt(firstTeamId);
                     let secondTeamIdNumber : number = parseInt(secondTeamId);
@@ -129,7 +130,7 @@ class CreateMatchUI{
                         let allPlayers : Array<Player> = [];
                         allPlayers.push(...message._firstTeamPlayers);
                         allPlayers.push(...message._secondTeamPlayers);
-                        this.CreateEventsWindow(allPlayers, "");
+                        this.CreateEventsWindow(allPlayers, "", dateString);
                     })
                          
                 }
@@ -137,9 +138,11 @@ class CreateMatchUI{
         })
     }
 
-    private CreateEventsWindow(players : Array<Player>, events : any){
+    private CreateEventsWindow(players : Array<Player>, events : any, date : string){
         let playersSelect : HTMLElement = document.querySelector("#players-select") as HTMLElement;
         let eventsSelect : HTMLElement = document.querySelector("#events-select") as HTMLElement;
+        let dateTimeInput : HTMLInputElement = document.querySelector("#event-time-input") as HTMLInputElement;
+        dateTimeInput.value = date;
 
         players.forEach((player : Player) => {
             let option = document.createElement("option");
@@ -147,23 +150,8 @@ class CreateMatchUI{
             option.innerText = player.name;
             playersSelect.appendChild(option);
         })
-    }
-    private CombineArrays(first : Array<Player>, second : Array<Player>, callback : Function){
-        let arr : Array<Player> = [];
-        let counter = 0;
-        first.forEach((el : Player) => {
-            arr.push(el);
-            if (counter === first.length - 1){
-                counter = 0;
-                second.forEach((player : Player) => {
-                    arr.push(player);
-                    if (counter === second.length - 1){
-                        console.log(arr);
-                        callback(arr);
-                    }
-                })
-            }
-        })
+
+        
     }
 }
 
@@ -172,11 +160,11 @@ class Message{
     public _firstTeamPlayers : Array<Player>;
     public _secondTeamPlayers : Array<Player>;
     constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>){
-      this._message = message;
-      this._firstTeamPlayers = firstTeamPlayers;
-      this._secondTeamPlayers = secondTeamPlayers;
+        this._message = message;
+        this._firstTeamPlayers = firstTeamPlayers;
+        this._secondTeamPlayers = secondTeamPlayers;
     }
-  }
+}
 
 class Player{
     public id : number;
@@ -194,5 +182,19 @@ class Player{
         this.yellowcards = yellowcards;
     }
 }
+
+class MatchEvent{
+    public _id : number;
+    public _type : string;
+    public _player : Player;
+    public _time : Date;
+  
+    constructor(id : number, type : string, player : Player, time : Date){
+        this._id = id;
+        this._type = type;
+        this._player = player;
+        this._time = time;
+    }
+  }
 
 var firstScreen = new Ui();

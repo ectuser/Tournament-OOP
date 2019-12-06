@@ -267,7 +267,7 @@ class Match{
   private _date : Date;
   private _firstTeamScore : number;
   private _secondTeamScore : number;
-  private _events : Array<Event>;
+  private _events : Array<MatchEvent>;
 
   get id(){
     return this._id;
@@ -277,7 +277,7 @@ class Match{
     this._id = id;
   }
 
-  constructor(firstTeam : Team, secondTeam : Team, date : Date, firstTeamScore : number, secondTeamScore : number, events : Array<Event>){
+  constructor(firstTeam : Team, secondTeam : Team, date : Date, firstTeamScore : number, secondTeamScore : number, events : Array<MatchEvent>){
     this._firstTeam = firstTeam;
     this._secondTeam = secondTeam;
     this._date = date;
@@ -287,7 +287,7 @@ class Match{
   }
 }
 
-class Event{
+class MatchEvent{
   private _id : number;
   private _type : string;
   private _player : Player;

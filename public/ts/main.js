@@ -85,7 +85,7 @@ var CreateMatchUI = /** @class */ (function () {
         var inter = setInterval(function () {
             if (firstCondition && secondCondition) {
                 clearInterval(inter);
-                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || document.querySelector("#start").value == "") {
+                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || document.querySelector("#match-date-time-input").value == "") {
                     console.log(firstTeamId, secondTeamId);
                     alert("Choose different teams from each column!");
                     // this.TeamsCheck();
@@ -93,7 +93,8 @@ var CreateMatchUI = /** @class */ (function () {
                 }
                 else {
                     alert("created");
-                    var date = new Date(document.querySelector("#start").value);
+                    var date = new Date(document.querySelector("#match-date-time-input").value);
+                    var dateString_1 = document.querySelector("#match-date-time-input").value;
                     console.log(date);
                     var firstTeamIdNumber = parseInt(firstTeamId);
                     var secondTeamIdNumber = parseInt(secondTeamId);
@@ -102,37 +103,22 @@ var CreateMatchUI = /** @class */ (function () {
                         var allPlayers = [];
                         allPlayers.push.apply(allPlayers, message._firstTeamPlayers);
                         allPlayers.push.apply(allPlayers, message._secondTeamPlayers);
-                        _this.CreateEventsWindow(allPlayers, "");
+                        _this.CreateEventsWindow(allPlayers, "", dateString_1);
                     });
                 }
             }
         });
     };
-    CreateMatchUI.prototype.CreateEventsWindow = function (players, events) {
+    CreateMatchUI.prototype.CreateEventsWindow = function (players, events, date) {
         var playersSelect = document.querySelector("#players-select");
         var eventsSelect = document.querySelector("#events-select");
+        var dateTimeInput = document.querySelector("#event-time-input");
+        dateTimeInput.value = date;
         players.forEach(function (player) {
             var option = document.createElement("option");
             option.value = player.id.toString();
             option.innerText = player.name;
             playersSelect.appendChild(option);
-        });
-    };
-    CreateMatchUI.prototype.CombineArrays = function (first, second, callback) {
-        var arr = [];
-        var counter = 0;
-        first.forEach(function (el) {
-            arr.push(el);
-            if (counter === first.length - 1) {
-                counter = 0;
-                second.forEach(function (player) {
-                    arr.push(player);
-                    if (counter === second.length - 1) {
-                        console.log(arr);
-                        callback(arr);
-                    }
-                });
-            }
         });
     };
     return CreateMatchUI;
@@ -155,5 +141,14 @@ var Player = /** @class */ (function () {
         this.yellowcards = yellowcards;
     }
     return Player;
+}());
+var MatchEvent = /** @class */ (function () {
+    function MatchEvent(id, type, player, time) {
+        this._id = id;
+        this._type = type;
+        this._player = player;
+        this._time = time;
+    }
+    return MatchEvent;
 }());
 var firstScreen = new Ui();
