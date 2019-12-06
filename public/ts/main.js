@@ -85,7 +85,7 @@ var CreateMatchUI = /** @class */ (function () {
         var inter = setInterval(function () {
             if (firstCondition && secondCondition) {
                 clearInterval(inter);
-                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId) {
+                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || document.querySelector("#start").value == "") {
                     console.log(firstTeamId, secondTeamId);
                     alert("Choose different teams from each column!");
                     // this.TeamsCheck();
@@ -99,22 +99,61 @@ var CreateMatchUI = /** @class */ (function () {
                     var secondTeamIdNumber = parseInt(secondTeamId);
                     var teams = [firstTeamIdNumber, secondTeamIdNumber];
                     $.post("/create-match", { data: teams, date: date }, function (message) {
-                        console.log(message);
-                        if (message.message === "create-events") {
-                            window.open("http://localhost:3000/match/" + message.data);
-                        }
+                        var allPlayers = [];
+                        allPlayers.push.apply(allPlayers, message._firstTeamPlayers);
+                        allPlayers.push.apply(allPlayers, message._secondTeamPlayers);
+                        _this.CreateEventsWindow(allPlayers, "");
                     });
                 }
+            }
+        });
+    };
+    CreateMatchUI.prototype.CreateEventsWindow = function (players, events) {
+        var playersSelect = document.querySelector("#players-select");
+        var eventsSelect = document.querySelector("#events-select");
+        players.forEach(function (player) {
+            var option = document.createElement("option");
+            option.value = player.id.toString();
+            option.innerText = player.name;
+            playersSelect.appendChild(option);
+        });
+    };
+    CreateMatchUI.prototype.CombineArrays = function (first, second, callback) {
+        var arr = [];
+        var counter = 0;
+        first.forEach(function (el) {
+            arr.push(el);
+            if (counter === first.length - 1) {
+                counter = 0;
+                second.forEach(function (player) {
+                    arr.push(player);
+                    if (counter === second.length - 1) {
+                        console.log(arr);
+                        callback(arr);
+                    }
+                });
             }
         });
     };
     return CreateMatchUI;
 }());
 var Message = /** @class */ (function () {
-    function Message(message, data) {
-        this.data = data;
-        this.message = message;
+    function Message(message, firstTeamPlayers, secondTeamPlayers) {
+        this._message = message;
+        this._firstTeamPlayers = firstTeamPlayers;
+        this._secondTeamPlayers = secondTeamPlayers;
     }
     return Message;
+}());
+var Player = /** @class */ (function () {
+    function Player(id, name, goals, assists, redcards, yellowcards) {
+        this.id = id;
+        this.name = name;
+        this.goals = goals;
+        this.assists = assists;
+        this.redcards = redcards;
+        this.yellowcards = yellowcards;
+    }
+    return Player;
 }());
 var firstScreen = new Ui();

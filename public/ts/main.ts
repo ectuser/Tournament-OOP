@@ -112,7 +112,7 @@ class CreateMatchUI{
 
                 clearInterval(inter);
 
-                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId){
+                if (firstTeamId === "-1" || secondTeamId === "-1" || secondTeamId === firstTeamId || (document.querySelector("#start") as HTMLInputElement).value == ""){
                     console.log(firstTeamId, secondTeamId);
                     alert("Choose different teams from each column!");
                     // this.TeamsCheck();
@@ -126,25 +126,73 @@ class CreateMatchUI{
                     let secondTeamIdNumber : number = parseInt(secondTeamId);
                     let teams : Array<number> = [firstTeamIdNumber, secondTeamIdNumber]
                     $.post("/create-match", { data : teams, date : date}, (message : Message) => {
-                        console.log(message);
-                        if (message.message === "create-events"){
-                            window.open(`http://localhost:3000/match/${message.data}`);
-                        }
+                        let allPlayers : Array<Player> = [];
+                        allPlayers.push(...message._firstTeamPlayers);
+                        allPlayers.push(...message._secondTeamPlayers);
+                        this.CreateEventsWindow(allPlayers, "");
                     })
                          
                 }
             }
         })
     }
+
+    private CreateEventsWindow(players : Array<Player>, events : any){
+        let playersSelect : HTMLElement = document.querySelector("#players-select") as HTMLElement;
+        let eventsSelect : HTMLElement = document.querySelector("#events-select") as HTMLElement;
+
+        players.forEach((player : Player) => {
+            let option = document.createElement("option");
+            option.value = player.id.toString();
+            option.innerText = player.name;
+            playersSelect.appendChild(option);
+        })
+    }
+    private CombineArrays(first : Array<Player>, second : Array<Player>, callback : Function){
+        let arr : Array<Player> = [];
+        let counter = 0;
+        first.forEach((el : Player) => {
+            arr.push(el);
+            if (counter === first.length - 1){
+                counter = 0;
+                second.forEach((player : Player) => {
+                    arr.push(player);
+                    if (counter === second.length - 1){
+                        console.log(arr);
+                        callback(arr);
+                    }
+                })
+            }
+        })
+    }
 }
 
 class Message{
-    public message : string;
-    public data : number;
-    constructor(message : string, data : number){
-      this.data = data;
-      this.message = message;
+    public _message : string;
+    public _firstTeamPlayers : Array<Player>;
+    public _secondTeamPlayers : Array<Player>;
+    constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>){
+      this._message = message;
+      this._firstTeamPlayers = firstTeamPlayers;
+      this._secondTeamPlayers = secondTeamPlayers;
     }
   }
+
+class Player{
+    public id : number;
+    public name : string;
+    public goals : number;
+    public assists : number;
+    public redcards : number;
+    public yellowcards : number;
+    constructor (id:number, name : string, goals : number, assists : number, redcards : number, yellowcards : number){
+        this.id = id;
+        this.name = name;
+        this.goals = goals;
+        this.assists = assists;
+        this.redcards = redcards;
+        this.yellowcards = yellowcards;
+    }
+}
 
 var firstScreen = new Ui();

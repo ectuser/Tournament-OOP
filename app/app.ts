@@ -18,6 +18,7 @@ import {Player} from "./classes/Player";
 import {ITeam} from "./interfaces/ITeam";
 import {IPlayer} from "./interfaces/IPlayer";
 import { ITeamsPlayers } from './interfaces/ITeamsPlayers';
+import { runInNewContext } from 'vm';
 
 
 class Server{
@@ -96,13 +97,14 @@ class Server{
       this.repository.GetTeamAndPlayers(firstTeamId, (firstTeam : Team) => {
         this.repository.GetTeamAndPlayers(secondTeamId, (secondTeam : Team) => {;
 
-          let match : Match = new Match(firstTeam, secondTeam, date, 0, 0);
+          let match : Match = new Match(firstTeam, secondTeam, date, 0, 0, []);
           console.log(match);
           this.repository.GetTeamsAmount((id : number) =>{
             match.id = id;
             console.log(match.id);
             
-            let msg : Message = new Message("create-events", match.id);
+            let msg : Message = new Message("create-events", firstTeam.players, secondTeam.players);
+
 
             res.send(msg);
           });
@@ -126,11 +128,22 @@ class Server{
 }
 
 class Message{
-  private message : string;
-  private data : number;
-  constructor(message : string, data : number){
-    this.data = data;
-    this.message = message;
+  private _message : string;
+  private _firstTeamPlayers : Array<Player>;
+  private _secondTeamPlayers : Array<Player>;
+  constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>){
+    this._message = message;
+    this._firstTeamPlayers = firstTeamPlayers;
+    this._secondTeamPlayers = secondTeamPlayers;
+  }
+  get message(){
+    return this._message;
+  }
+  get firstTeamPlayers(){
+    return this._firstTeamPlayers;
+  }
+  get secondTeamPlayers(){
+    return this._secondTeamPlayers;
   }
 }
 
@@ -206,23 +219,15 @@ class Repository{
 
         if (counter === result.length - 1){
           cond = true;
-        }
-        counter++;
-      }
-
-      let inter = setInterval(() => {
-        if (cond){
-          clearInterval(inter);
-
           let teams : Array<Team> = [];
 
           for (let i in obj){
             teams.push(obj[i]);
           }
-
           callback(teams);
         }
-      }, 200)
+        counter++;
+      }
 
     })
   }
@@ -262,6 +267,7 @@ class Match{
   private _date : Date;
   private _firstTeamScore : number;
   private _secondTeamScore : number;
+  private _events : Array<Event>;
 
   get id(){
     return this._id;
@@ -271,17 +277,28 @@ class Match{
     this._id = id;
   }
 
-  constructor(firstTeam : Team, secondTeam : Team, date : Date, firstTeamScore : number, secondTeamScore : number){
+  constructor(firstTeam : Team, secondTeam : Team, date : Date, firstTeamScore : number, secondTeamScore : number, events : Array<Event>){
     this._firstTeam = firstTeam;
     this._secondTeam = secondTeam;
     this._date = date;
     this._firstTeamScore = firstTeamScore;
     this._secondTeamScore = secondTeamScore;
-    
+    this._events = events;
   }
+}
 
+class Event{
+  private _id : number;
+  private _type : string;
+  private _player : Player;
+  private _time : Date;
 
-
+  constructor(id : number, type : string, player : Player, time : Date){
+    this._id = id;
+    this._type = type;
+    this._player = player;
+    this._time = time;
+  }
 }
 
 
