@@ -32,7 +32,7 @@ class CreateMatchUI{
     private firstColTeams : NodeListOf<HTMLElement>;
     private secondColTeams : NodeListOf<HTMLElement>;
     private readonly submitButton : HTMLElement;
-
+    private matchEvents : Array<MatchEvent> = [];
 
     constructor(){
         this.firstColTeams = document.querySelectorAll<HTMLElement>("body > main > div.content > div.select-teams > div.first-team > div.team");
@@ -183,9 +183,8 @@ class CreateMatchUI{
                 console.log(dateTimeInput);
                 let matchEvent : MatchEvent = new MatchEvent(4, oneEvent.textContent as string, playerToAdd, new Date(dateTimeInput.value), oneEventId);
                 console.log(matchEvent);
+                this.AddNewEvent(matchEvent);
             })
-            
-
         })
     }
     private FindPlayer(playerId : number, players : Array<Player>, callback : Function){
@@ -195,8 +194,13 @@ class CreateMatchUI{
             }
         })
     }
-    private AddNewEvent(){
+    private AddNewEvent(newEvent : MatchEvent){
+        this.matchEvents.push(newEvent);
+        let matchEventsElement : HTMLElement = document.querySelector("body > main > div.content > div.match-events") as HTMLElement;
 
+        let newEventElement : HTMLElement = document.createElement('div');
+        newEventElement.textContent = newEvent._player.name + " | " + newEvent._type + " | " + newEvent._time.toString();
+        matchEventsElement.appendChild(newEventElement);
     }
 }
 

@@ -20,6 +20,7 @@ var Ui = /** @class */ (function () {
 }());
 var CreateMatchUI = /** @class */ (function () {
     function CreateMatchUI() {
+        this.matchEvents = [];
         this.firstColTeams = document.querySelectorAll("body > main > div.content > div.select-teams > div.first-team > div.team");
         this.secondColTeams = document.querySelectorAll("body > main > div.content > div.select-teams > div.second-team > div.team");
         this.firstCol = document.querySelector("body > main > div.content > div.select-teams > div.first-team");
@@ -145,6 +146,7 @@ var CreateMatchUI = /** @class */ (function () {
                 console.log(dateTimeInput);
                 var matchEvent = new MatchEvent(4, oneEvent.textContent, playerToAdd, new Date(dateTimeInput.value), oneEventId);
                 console.log(matchEvent);
+                _this.AddNewEvent(matchEvent);
             });
         });
     };
@@ -155,7 +157,12 @@ var CreateMatchUI = /** @class */ (function () {
             }
         });
     };
-    CreateMatchUI.prototype.AddNewEvent = function () {
+    CreateMatchUI.prototype.AddNewEvent = function (newEvent) {
+        this.matchEvents.push(newEvent);
+        var matchEventsElement = document.querySelector("body > main > div.content > div.match-events");
+        var newEventElement = document.createElement('div');
+        newEventElement.textContent = newEvent._player.name + " | " + newEvent._type + " | " + newEvent._time.toString();
+        matchEventsElement.appendChild(newEventElement);
     };
     return CreateMatchUI;
 }());
