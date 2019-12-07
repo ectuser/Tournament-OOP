@@ -1,3 +1,6 @@
+// import { ifError } from "assert";
+// import { parse } from "path";
+
 // import { parse } from "querystring";
 
 class Ui {
@@ -130,7 +133,7 @@ class CreateMatchUI{
                         let allPlayers : Array<Player> = [];
                         allPlayers.push(...message._firstTeamPlayers);
                         allPlayers.push(...message._secondTeamPlayers);
-                        this.CreateEventsWindow(allPlayers, "", dateString);
+                        this.CreateEventsWindow(allPlayers, dateString, message._eventtype);
                     })
                          
                 }
@@ -138,11 +141,14 @@ class CreateMatchUI{
         })
     }
 
-    private CreateEventsWindow(players : Array<Player>, events : any, date : string){
-        let playersSelect : HTMLElement = document.querySelector("#players-select") as HTMLElement;
-        let eventsSelect : HTMLElement = document.querySelector("#events-select") as HTMLElement;
+    private CreateEventsWindow(players : Array<Player>, date : string, eventtype : Array<IEventType>){
+
+        
+        let playersSelect : HTMLSelectElement = document.querySelector("#players-select") as HTMLSelectElement;
+        let eventsSelect : HTMLSelectElement = document.querySelector("#events-select") as HTMLSelectElement;
         let dateTimeInput : HTMLInputElement = document.querySelector("#event-time-input") as HTMLInputElement;
         dateTimeInput.value = date;
+        console.log(eventtype);
 
         players.forEach((player : Player) => {
             let option = document.createElement("option");
@@ -150,8 +156,47 @@ class CreateMatchUI{
             option.innerText = player.name;
             playersSelect.appendChild(option);
         })
+        eventtype.forEach((event : IEventType) => {
+            let option = document.createElement("option");
+            option.value = event.typeid.toString();
+            option.innerText = event.name;
+            eventsSelect.appendChild(option);
+        })
+        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput);        
+    }
 
-        
+
+    private CreateEventButtonClick(playersSelect : HTMLSelectElement, eventsSelect : HTMLSelectElement, players : Array<Player>, dateTimeInput : HTMLInputElement){
+        let button : HTMLElement = document.querySelector("#add-event") as HTMLElement;    
+
+        button.addEventListener("click", (event) =>{
+            let ev = event.target as Element;
+            console.log(ev);
+
+            let player = playersSelect.options[playersSelect.selectedIndex];
+            let oneEvent = eventsSelect.options[eventsSelect.selectedIndex];
+
+            let playerId : number = parseInt(player.value);
+            let oneEventId : number = parseInt(oneEvent.value);
+
+            this.FindPlayer(playerId, players, (playerToAdd : Player) => {
+                console.log(dateTimeInput);
+                let matchEvent : MatchEvent = new MatchEvent(4, oneEvent.textContent as string, playerToAdd, new Date(dateTimeInput.value), oneEventId);
+                console.log(matchEvent);
+            })
+            
+
+        })
+    }
+    private FindPlayer(playerId : number, players : Array<Player>, callback : Function){
+        players.forEach((player : Player) => {
+            if (player.id === playerId){
+                callback(player);
+            }
+        })
+    }
+    private AddNewEvent(){
+
     }
 }
 
@@ -159,10 +204,12 @@ class Message{
     public _message : string;
     public _firstTeamPlayers : Array<Player>;
     public _secondTeamPlayers : Array<Player>;
-    constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>){
+    public _eventtype : Array<IEventType>
+    constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>, eventtype : Array<IEventType>){
         this._message = message;
         this._firstTeamPlayers = firstTeamPlayers;
         this._secondTeamPlayers = secondTeamPlayers;
+        this._eventtype = eventtype;
     }
 }
 
@@ -186,15 +233,29 @@ class Player{
 class MatchEvent{
     public _id : number;
     public _type : string;
+    public _typeEventId : number
     public _player : Player;
     public _time : Date;
   
-    constructor(id : number, type : string, player : Player, time : Date){
+    constructor(id : number, type : string, player : Player, time : Date, typeEventId : number){
         this._id = id;
         this._type = type;
         this._player = player;
         this._time = time;
+        this._typeEventId = typeEventId;
     }
-  }
+}
+interface IEventType{
+    typeid : number;
+    name : string;
+}
+class IEvent{
+    public eventId : number;
+    public playerId : number;
+    constructor (evId : number, plId : number){
+        this.eventId = evId;
+        this.playerId = plId;
+    }
+}
 
 var firstScreen = new Ui();

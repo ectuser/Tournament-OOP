@@ -103,10 +103,10 @@ class Server{
             match.id = id;
             console.log(match.id);
             
-            let msg : Message = new Message("create-events", firstTeam.players, secondTeam.players);
-
-
-            res.send(msg);
+            con.query("select * from eventtype", (err : Error, result : Array<IEventType>) => {
+              let msg : Message = new Message("create-events", firstTeam.players, secondTeam.players, result);
+              res.send(msg);
+            });
           });
 
         })
@@ -131,10 +131,12 @@ class Message{
   private _message : string;
   private _firstTeamPlayers : Array<Player>;
   private _secondTeamPlayers : Array<Player>;
-  constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>){
+  private _eventtype : Array<IEventType>
+  constructor(message : string, firstTeamPlayers : Array<Player>, secondTeamPlayers : Array<Player>, eventtype : Array<IEventType>){
     this._message = message;
     this._firstTeamPlayers = firstTeamPlayers;
     this._secondTeamPlayers = secondTeamPlayers;
+    this._eventtype = eventtype;
   }
   get message(){
     return this._message;
@@ -299,6 +301,11 @@ class MatchEvent{
     this._player = player;
     this._time = time;
   }
+}
+
+interface IEventType{
+  typeid : number;
+  name : string;
 }
 
 

@@ -1,3 +1,5 @@
+// import { ifError } from "assert";
+// import { parse } from "path";
 // import { parse } from "querystring";
 var Ui = /** @class */ (function () {
     function Ui() {
@@ -103,31 +105,66 @@ var CreateMatchUI = /** @class */ (function () {
                         var allPlayers = [];
                         allPlayers.push.apply(allPlayers, message._firstTeamPlayers);
                         allPlayers.push.apply(allPlayers, message._secondTeamPlayers);
-                        _this.CreateEventsWindow(allPlayers, "", dateString_1);
+                        _this.CreateEventsWindow(allPlayers, dateString_1, message._eventtype);
                     });
                 }
             }
         });
     };
-    CreateMatchUI.prototype.CreateEventsWindow = function (players, events, date) {
+    CreateMatchUI.prototype.CreateEventsWindow = function (players, date, eventtype) {
         var playersSelect = document.querySelector("#players-select");
         var eventsSelect = document.querySelector("#events-select");
         var dateTimeInput = document.querySelector("#event-time-input");
         dateTimeInput.value = date;
+        console.log(eventtype);
         players.forEach(function (player) {
             var option = document.createElement("option");
             option.value = player.id.toString();
             option.innerText = player.name;
             playersSelect.appendChild(option);
         });
+        eventtype.forEach(function (event) {
+            var option = document.createElement("option");
+            option.value = event.typeid.toString();
+            option.innerText = event.name;
+            eventsSelect.appendChild(option);
+        });
+        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput);
+    };
+    CreateMatchUI.prototype.CreateEventButtonClick = function (playersSelect, eventsSelect, players, dateTimeInput) {
+        var _this = this;
+        var button = document.querySelector("#add-event");
+        button.addEventListener("click", function (event) {
+            var ev = event.target;
+            console.log(ev);
+            var player = playersSelect.options[playersSelect.selectedIndex];
+            var oneEvent = eventsSelect.options[eventsSelect.selectedIndex];
+            var playerId = parseInt(player.value);
+            var oneEventId = parseInt(oneEvent.value);
+            _this.FindPlayer(playerId, players, function (playerToAdd) {
+                console.log(dateTimeInput);
+                var matchEvent = new MatchEvent(4, oneEvent.textContent, playerToAdd, new Date(dateTimeInput.value), oneEventId);
+                console.log(matchEvent);
+            });
+        });
+    };
+    CreateMatchUI.prototype.FindPlayer = function (playerId, players, callback) {
+        players.forEach(function (player) {
+            if (player.id === playerId) {
+                callback(player);
+            }
+        });
+    };
+    CreateMatchUI.prototype.AddNewEvent = function () {
     };
     return CreateMatchUI;
 }());
 var Message = /** @class */ (function () {
-    function Message(message, firstTeamPlayers, secondTeamPlayers) {
+    function Message(message, firstTeamPlayers, secondTeamPlayers, eventtype) {
         this._message = message;
         this._firstTeamPlayers = firstTeamPlayers;
         this._secondTeamPlayers = secondTeamPlayers;
+        this._eventtype = eventtype;
     }
     return Message;
 }());
@@ -143,12 +180,20 @@ var Player = /** @class */ (function () {
     return Player;
 }());
 var MatchEvent = /** @class */ (function () {
-    function MatchEvent(id, type, player, time) {
+    function MatchEvent(id, type, player, time, typeEventId) {
         this._id = id;
         this._type = type;
         this._player = player;
         this._time = time;
+        this._typeEventId = typeEventId;
     }
     return MatchEvent;
+}());
+var IEvent = /** @class */ (function () {
+    function IEvent(evId, plId) {
+        this.eventId = evId;
+        this.playerId = plId;
+    }
+    return IEvent;
 }());
 var firstScreen = new Ui();
