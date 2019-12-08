@@ -78,6 +78,12 @@ main > div.content .select-teams > .first-team > .team.active, main > div.conten
 body > main > div.content > div.select-teams-button{
     cursor: pointer;
     text-align: center;
+    width: 25%;
+    margin: 0 auto;
+    padding: 10px;
+    background: #3950A6;
+    color: white;
+    border-radius: 10px;
 }
 
 body > main > div.content div.match-events > div.new-event{

@@ -241,6 +241,7 @@ var CreateMatchUI = /** @class */ (function () {
         var createMatchButton = document.querySelector("#create-match-with-events");
         createMatchButton.addEventListener("click", function () {
             console.log(_this.matchEvents);
+            alert("Match created");
             $.post("/create-match-events", { matchEvents: _this.matchEvents });
         });
     };

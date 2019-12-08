@@ -1,8 +1,3 @@
-// import { ifError } from "assert";
-// import { parse } from "path";
-
-// import { parse } from "querystring";
-
 class Ui {
     private url : string;
 
@@ -283,6 +278,7 @@ class CreateMatchUI{
         let createMatchButton : HTMLElement = document.querySelector("#create-match-with-events") as HTMLElement;
         createMatchButton.addEventListener("click", () => {
             console.log(this.matchEvents);
+            alert("Match created");
             $.post("/create-match-events", { matchEvents : this.matchEvents } );
         })
     }
