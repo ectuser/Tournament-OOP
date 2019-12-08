@@ -1,0 +1,48 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Моя первая верстка</title>
+		<link href="../public/css/style.css" type="text/css" rel="stylesheet" />
+	</head>
+	<body>
+		<header>FOOTBALL TOURNAMENT</header>
+		<main>
+			<%- include("blocks/nav-bar.ejs") %>
+			<div class="content">
+                <div id="stats">
+                    <select name="sort-by" id="sort-by">
+                        <% types.forEach((el) => { %>
+                            <option value=""><%= el.name %></option>
+                        <% }) %>
+                    </select>
+                    <select name="" id="order-by">
+                        <option value="desc">Decrease</option>
+                        <option value="asc">Increase</option>
+                    </select>
+                    <button class="submit">Submit</button>
+                    <div class="line">
+                        <div class="st player">Player</div>
+                        <div class="st goals">Goals</div>
+                        <div class="st assists">Assists</div>
+                        <div class="st yellow-cards">Yellow Cards</div>
+                        <div class="st red-cards">Red Cards</div>
+                    </div>
+                    <% players.forEach((el) => { %>
+                        <div class="line">
+                            <div class="st player"> <a href="/player/<%= el.id %>" data-type=<%= el.id %></a> <%= el.name %></a></div>
+                            <div class="st goals"><%= el.goals %></div>
+                            <div class="st assists"><%= el.assists %></div>
+                            <div class="st yellow-cards"><%= el.yellowcards %></div>
+                            <div class="st red-cards"><%= el.redcards %></div>
+                        </div>
+                   <% }) %>
+                </div>
+			</div>
+		</main>
+	</body>
+
+	<script src="../public/js/jquery-3.4.1.min.js"></script>
+	<script src="../public/ts/main.js"></script>
+</html>

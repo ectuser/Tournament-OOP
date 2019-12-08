@@ -103,3 +103,9 @@ body > main > div.content div.match-events > div.new-event > div.btn:hover{
 #player  div.stats > div.line > div.st{
     flex: 1;
 }
+#stats  div.line{
+    display: flex;
+}
+#stats  div.line > div.st{
+    flex: 1;
+}

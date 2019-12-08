@@ -32,6 +32,7 @@ class Server{
     this.FirstInit();
     this.GetMainPage();
     this.GetTable();
+    this.GetStats();
     this.GetTeamById();
     this.GetCreateNewMatch();
     this.PostCreateNewMatch();
@@ -79,6 +80,31 @@ class Server{
     })
   }
 
+  private GetStats(){
+    this.app.get("/stats", (req, res) => {
+      if (req.query.type == undefined){
+
+        this.repository.GetPlayersStats("goals", "desc", (players : Array<Player>) => {
+
+          this.repository.GetPlayerParams((evTypes : Array<IEventType>) => {
+            res.render('stats.ejs', {players : players, types : evTypes});
+          })
+        })
+
+      }
+      else {
+
+        this.repository.GetPlayersStats(req.query.type + "s", req.query.status, (players : Array<Player>) => {
+
+          this.repository.GetPlayerParams((evTypes : Array<IEventType>) => {
+            res.render('stats.ejs', {players : players, types : evTypes});
+          })
+        })
+
+      }
+    })
+  }
+
   private GetCreateNewMatch(){
     this.app.get("/create-match", (req, res) => {
       this.repository.GetPlayers((teams : Array<Team>) => {
@@ -96,7 +122,7 @@ class Server{
         this.repository.GetTeamAndPlayers(secondTeamId, (secondTeam : Team) => {;
 
           let match : Match = new Match(firstTeam, secondTeam, date, 0, 0, []);
-          this.repository.GetTeamsAmount((id : number) =>{
+          this.repository.GetMatchesAmount((id : number) =>{
             match.id = id;
             
             con.query("select * from eventtype", (err : Error, result : Array<IEventType>) => {
@@ -343,6 +369,18 @@ class Repository{
 
     // })
   }
+  public GetPlayersStats(type : string, status : string, callback : Function){
+    console.log(`select * from player order by ${type} ${status};`);
+    con.query(`select * from player order by ${type} ${status};`, (err : Error, res : Array<IPlayer>) => {
+      let players : Array<Player> = this.parse.ParsePlayers(res);
+      callback(players);
+    })
+  }
+  public GetPlayerParams(callback : Function){
+    con.query("select * from eventtype", (err : Error, res : Array<IEventType>) => {
+      callback(res);
+    })
+  }
   public GetTeamAndPlayers(id : number, callback : Function){
     let sqlReq : string = `SELECT team.*, manager.name 'managername' FROM team join manager on manager.id=team.managerid WHERE team.id=${id}; 
       SELECT * FROM playerinteam join player on player.id=playerinteam.playerid WHERE playerinteam.teamid=${id};`;
@@ -361,7 +399,7 @@ class Repository{
       })
   }
   public GetMatchesAmount(callback : Function){
-    con.query("SELECT * FROM match", (err : Error, result : Array<Object>) => {
+    con.query("SELECT * FROM `match`", (err : Error, result : Array<Object>) => {
       if (err) throw err;
       let amount = result.length;
       callback(amount);
@@ -375,8 +413,6 @@ class Repository{
     events.forEach((ev : MatchEvent) => {
       let player : Player = ev.player;
       this.UpdatePlayerStats(player, ev.type);
-
-      this.InsertEvent(ev, match);
 
       this.GetTeamIdByPlayer(player, (teamId : number) => {
         if (ev.type == "goal"){
@@ -400,6 +436,7 @@ class Repository{
       con.query(`select typeid from eventtype where eventtype.name = \'${ev.type}\'`, (err : Error, result : Array<IEventType>) => {
         if (err) throw err;
         // console.log(result[0].typeid, match.id, ev.player.id, date)
+        // console.log(match.id)
         con.query(`INSERT INTO event(typeid, matchid, playerid, time) VALUES(${result[0].typeid}, ${match.id}, ${ev.player.id}, \'${date}\')`);
       })
 
@@ -422,6 +459,9 @@ class Repository{
     let secondTeamScore = match.secondTeamScore;
 
     con.query(`INSERT INTO \`match\`(firstteamid, secondteamid, date, firstteamscore, secondteamscore) VALUES(${firstTeamId}, ${secondTeamId}, \'${date}\', ${firstTeamScore}, ${secondTeamScore})`);
+    match.events.forEach((ev : MatchEvent) => {
+      this.InsertEvent(ev, match);
+    })
     if (match.firstTeamScore > match.secondTeamScore){
       con.query(`UPDATE team SET points = points + 3 WHERE team.id = ${match.firstTeam.id}`);
       console.log("first won");

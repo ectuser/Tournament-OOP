@@ -10,13 +10,31 @@ var Ui = /** @class */ (function () {
     Ui.prototype.DefinePage = function () {
         if (this.url.indexOf("show-table") !== -1) {
         }
-        else if (this.url.indexOf("show-statistics") !== -1) {
+        else if (this.url.indexOf("stats") !== -1) {
+            var stats = new ShowStatsUI();
         }
         else if (this.url.indexOf("create-match") !== -1) {
             var matchPage = new CreateMatchUI();
         }
     };
     return Ui;
+}());
+var ShowStatsUI = /** @class */ (function () {
+    function ShowStatsUI() {
+        this.evTypeSelect = document.querySelector("#sort-by");
+        this.statusSelect = document.querySelector("#order-by");
+        this.btn = document.querySelector("#stats > button");
+        this.ButtonClick();
+    }
+    ShowStatsUI.prototype.ButtonClick = function () {
+        var _this = this;
+        this.btn.addEventListener("click", function () {
+            var type = _this.evTypeSelect.options[_this.evTypeSelect.selectedIndex].text;
+            var status = _this.statusSelect.options[_this.statusSelect.selectedIndex].value;
+            window.location.href = "/stats?type=" + type + "&status=" + status;
+        });
+    };
+    return ShowStatsUI;
 }());
 var CreateMatchUI = /** @class */ (function () {
     function CreateMatchUI() {

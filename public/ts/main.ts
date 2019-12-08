@@ -16,12 +16,33 @@ class Ui {
         if (this.url.indexOf("show-table") !== -1){
 
         }
-        else if (this.url.indexOf("show-statistics") !== -1){
-
+        else if (this.url.indexOf("stats") !== -1){
+            let stats : ShowStatsUI = new ShowStatsUI();
         }
         else if (this.url.indexOf("create-match") !== -1){
             let matchPage : CreateMatchUI = new CreateMatchUI();
         }
+    }
+
+}
+
+class ShowStatsUI{
+    private evTypeSelect : HTMLSelectElement;
+    private statusSelect : HTMLSelectElement;
+    private btn : HTMLElement;
+    constructor(){
+        this.evTypeSelect = document.querySelector("#sort-by") as HTMLSelectElement;
+        this.statusSelect = document.querySelector("#order-by") as HTMLSelectElement;
+        this.btn = document.querySelector("#stats > button") as HTMLElement;
+        this.ButtonClick();
+    }
+    private ButtonClick(){
+        this.btn.addEventListener("click", () => {
+            let type : string = this.evTypeSelect.options[this.evTypeSelect.selectedIndex].text;
+            let status : string = this.statusSelect.options[this.statusSelect.selectedIndex].value;
+
+            window.location.href = `/stats?type=${type}&status=${status}`;
+        })
     }
 
 }
