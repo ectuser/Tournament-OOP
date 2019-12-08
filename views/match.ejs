@@ -1,0 +1,41 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Моя первая верстка</title>
+		<link href="../public/css/style.css" type="text/css" rel="stylesheet" />
+	</head>
+	<body>
+		<header>FOOTBALL TOURNAMENT</header>
+		<main>
+			<%- include("blocks/nav-bar.ejs") %>
+			<div class="content">
+                <div id="match">
+                    <div class="date"><%= new Date(data.date).toISOString().slice(0, 19).replace('T', ' ') %></div>
+                    <div class="teams">
+                        <span class="first-team"><a href="/team/<%= data.firstTeam.id %>"><%= data.firstTeam.name%></a></span>
+                        <span>
+                            <span class="first-team-score"><%= data.firstTeamScore %></span>
+                            -
+                            <span class="second-team-score"><%= data.secondTeamScore %></span>
+                        </span>
+                        <span class="second-team"><a href="/team/<%= data.secondTeam.id %>"><%= data.secondTeam.name %></a></span>
+                    </div>
+                    <div class="events">
+                            <% data.events.forEach((el) => { %>
+                                <div class="event">
+                                    <div class="ev event-player"> <a href="/player/<%= el.player.id %>"><%= el.player.name %></a></div>
+                                    <div class="ev event-type"><%= el.type %></div>
+                                    <div class="ev event-time"><%= new Date(el.time).toISOString().slice(0, 19).replace('T', ' ') %></div>
+                                </div>
+                            <% }) %>
+                    </div>
+                </div>
+			</div>
+		</main>
+	</body>
+
+	<script src="../public/js/jquery-3.4.1.min.js"></script>
+	<script src="../public/ts/main.js"></script>
+</html>

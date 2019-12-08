@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Моя первая верстка</title>
+		<link href="../public/css/style.css" type="text/css" rel="stylesheet" />
+	</head>
+	<body>
+		<header>FOOTBALL TOURNAMENT</header>
+		<main>
+			<%- include("blocks/nav-bar.ejs") %>
+			<div class="content">
+                <div id="player">
+                    <div class="name"><%= data.name %></div>
+                    <br>
+                    <div class="stats">
+                        <div class="line">
+                            <div class="goals st">goals</div>
+                            <div class="assists st">assists</div>
+                            <div class="red-cards st">Red Cards</div>
+                            <div class="yellow-cards st">Yellow Cards</div>
+                        </div>
+                        <div class="line">
+                            <div class="goals st"><%= data.goals %></div>
+                            <div class="assists st"><%= data.assists %></div>
+                            <div class="red-cards st"><%= data.redcards %></div>
+                            <div class="yellow-cards st"><%= data.yellowcards %></div>
+                        </div>
+                    </div>
+                </div>
+			</div>
+		</main>
+	</body>
+
+	<script src="../public/js/jquery-3.4.1.min.js"></script>
+	<script src="../public/ts/main.js"></script>
+</html>

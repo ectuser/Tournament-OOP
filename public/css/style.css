@@ -90,3 +90,16 @@ body > main > div.content div.match-events > div.new-event > div.btn:hover{
     text-decoration: underline;
     cursor: pointer;
 }
+#match  div.events > div.event{
+    display: flex;
+}
+#match  div.events > div.event > div.ev{
+    flex: 1;
+}
+
+#player  div.stats > div.line{
+    display: flex;
+}
+#player  div.stats > div.line > div.st{
+    flex: 1;
+}
