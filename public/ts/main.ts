@@ -133,7 +133,9 @@ class CreateMatchUI{
                         let allPlayers : Array<Player> = [];
                         allPlayers.push(...message._firstTeamPlayers);
                         allPlayers.push(...message._secondTeamPlayers);
-                        this.CreateEventsWindow(allPlayers, dateString, message._eventtype);
+                        this.CreateEventsWindow(allPlayers, dateString, message._eventtype, date);
+                        this.CreateMatchButtonClick();
+
                     })
                          
                 }
@@ -141,9 +143,7 @@ class CreateMatchUI{
         })
     }
 
-    private CreateEventsWindow(players : Array<Player>, date : string, eventtype : Array<IEventType>){
-
-        
+    private CreateEventsWindow(players : Array<Player>, date : string, eventtype : Array<IEventType>, matchStarts : Date){
         let playersSelect : HTMLSelectElement = document.querySelector("#players-select") as HTMLSelectElement;
         let eventsSelect : HTMLSelectElement = document.querySelector("#events-select") as HTMLSelectElement;
         let dateTimeInput : HTMLInputElement = document.querySelector("#event-time-input") as HTMLInputElement;
@@ -162,11 +162,11 @@ class CreateMatchUI{
             option.innerText = event.name;
             eventsSelect.appendChild(option);
         })
-        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput);        
+        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput, matchStarts);        
     }
 
 
-    private CreateEventButtonClick(playersSelect : HTMLSelectElement, eventsSelect : HTMLSelectElement, players : Array<Player>, dateTimeInput : HTMLInputElement){
+    private CreateEventButtonClick(playersSelect : HTMLSelectElement, eventsSelect : HTMLSelectElement, players : Array<Player>, dateTimeInput : HTMLInputElement, matchStarts : Date){
         let button : HTMLElement = document.querySelector("#add-event") as HTMLElement;    
 
         button.addEventListener("click", (event) =>{
@@ -181,9 +181,14 @@ class CreateMatchUI{
 
             this.FindPlayer(playerId, players, (playerToAdd : Player) => {
                 console.log(dateTimeInput);
-                let matchEvent : MatchEvent = new MatchEvent(4, oneEvent.textContent as string, playerToAdd, new Date(dateTimeInput.value), oneEventId);
-                console.log(matchEvent);
-                this.AddNewEvent(matchEvent);
+                if (this.CheckEventType(matchStarts, new Date(dateTimeInput.value))){
+                    let matchEvent : MatchEvent = new MatchEvent(this.matchEvents.length, oneEvent.textContent as string, playerToAdd, new Date(dateTimeInput.value), oneEventId);
+                    console.log(matchEvent);
+                    this.AddNewEvent(matchEvent, matchStarts);
+                }
+                else{
+                    alert("Incorrect time");
+                }
             })
         })
     }
@@ -194,13 +199,71 @@ class CreateMatchUI{
             }
         })
     }
-    private AddNewEvent(newEvent : MatchEvent){
+    private AddNewEvent(newEvent : MatchEvent, matchStarts : Date){
         this.matchEvents.push(newEvent);
         let matchEventsElement : HTMLElement = document.querySelector("body > main > div.content > div.match-events") as HTMLElement;
 
-        let newEventElement : HTMLElement = document.createElement('div');
-        newEventElement.textContent = newEvent._player.name + " | " + newEvent._type + " | " + newEvent._time.toString();
+        let newEventElement : HTMLElement = this.CreateNewElement("div", "new-event", "");
+        let playerElement : HTMLElement = this.CreateNewElement("div", "ev player", newEvent.player.name);
+        let eventElement : HTMLElement = this.CreateNewElement("div", "ev event", newEvent.type);
+        let eventTime : HTMLElement = this.CreateNewElement("div", "ev time", this.CountMinutesDifference(matchStarts, newEvent.time).toString() + "'");
+        let removeButton : HTMLElement = this.CreateNewElement("div", "btn remove", "X");
+        removeButton.setAttribute("data-event-id", newEvent.id.toString());
+
+        newEventElement.appendChild(playerElement);
+        newEventElement.appendChild(eventElement);
+        newEventElement.appendChild(eventTime);
+        newEventElement.appendChild(removeButton);
+
+        this.RemoveEventButtonClick(removeButton, newEventElement);
+
         matchEventsElement.appendChild(newEventElement);
+    }
+
+    private CountMinutesDifference(first : Date, second : Date) : number{
+        let diffTime : number = Math.abs(first.getTime() - second.getTime());
+        let diffMinutes : number = Math.ceil(diffTime / (1000 * 60));
+        return diffMinutes;
+    }
+    private CheckEventType(matchStarts : Date, eventTime : Date) : boolean{
+        let diffTime : number = eventTime.getTime() - matchStarts.getTime();
+        let diffMinutes : number = Math.ceil(diffTime / (1000 * 60));
+        if (diffTime < 0 || diffMinutes > 95){
+            return false;
+        }
+        return true;
+    }
+    private CreateNewElement(tag : string, className : string, textContent : string) : HTMLElement{
+        let newElement : HTMLElement = document.createElement(tag);
+        newElement.className = className;
+        newElement.textContent = textContent;
+        return newElement;
+    }
+    private RemoveEventButtonClick(button : HTMLElement, eventElement : HTMLElement){
+        button.addEventListener("click", (event) =>{
+            let id : number = parseInt(button.getAttribute("data-event-id") as string);
+            this.FindEventById(id, (ev: MatchEvent) => {
+                var index = this.matchEvents.indexOf(ev);
+                if (index > -1) {
+                    this.matchEvents.splice(index, 1);
+                    eventElement.remove();
+                }
+            })
+        })
+    }
+    private FindEventById(id : number, callback : Function){
+        this.matchEvents.forEach((ev : MatchEvent) => {
+            if (ev.id === id){
+                callback(ev);
+            }
+        })
+    }
+    private CreateMatchButtonClick(){
+        let createMatchButton : HTMLElement = document.querySelector("#create-match-with-events") as HTMLElement;
+        createMatchButton.addEventListener("click", () => {
+            console.log(this.matchEvents);
+            $.post("/create-match-events", { matchEvents : this.matchEvents } );
+        })
     }
 }
 
@@ -235,18 +298,18 @@ class Player{
 }
 
 class MatchEvent{
-    public _id : number;
-    public _type : string;
-    public _typeEventId : number
-    public _player : Player;
-    public _time : Date;
+    public id : number;
+    public type : string;
+    public typeEventId : number
+    public player : Player;
+    public time : Date;
   
     constructor(id : number, type : string, player : Player, time : Date, typeEventId : number){
-        this._id = id;
-        this._type = type;
-        this._player = player;
-        this._time = time;
-        this._typeEventId = typeEventId;
+        this.id = id;
+        this.type = type;
+        this.player = player;
+        this.time = time;
+        this.typeEventId = typeEventId;
     }
 }
 interface IEventType{

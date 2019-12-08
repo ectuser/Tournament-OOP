@@ -78,5 +78,15 @@ main > div.content .select-teams > .first-team > .team.active, main > div.conten
 body > main > div.content > div.select-teams-button{
     cursor: pointer;
     text-align: center;
-    
+}
+
+body > main > div.content div.match-events > div.new-event{
+    display: flex;
+}
+body > main > div.content div.match-events > div.new-event > div.ev,body > main > div.content div.match-events > div.new-event > div.btn {
+    flex: 1;
+}
+body > main > div.content div.match-events > div.new-event > div.btn:hover{
+    text-decoration: underline;
+    cursor: pointer;
 }

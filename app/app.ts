@@ -19,6 +19,7 @@ import {ITeam} from "./interfaces/ITeam";
 import {IPlayer} from "./interfaces/IPlayer";
 import { ITeamsPlayers } from './interfaces/ITeamsPlayers';
 import { runInNewContext } from 'vm';
+import { parse } from 'path';
 
 
 class Server{
@@ -106,11 +107,25 @@ class Server{
             con.query("select * from eventtype", (err : Error, result : Array<IEventType>) => {
               let msg : Message = new Message("create-events", firstTeam.players, secondTeam.players, result);
               res.send(msg);
+
+              this.PostCreateMatchEvents(match);
             });
           });
 
         })
       });
+    })
+  }
+  private PostCreateMatchEvents(match : Match){
+    this.app.post("/create-match-events", (req, res) => {
+      match.events = req.body.matchEvents;
+      console.log("hello");
+      this.parse.ParseEventPlayers(match, (newMatch : Match) => {
+        // console.log("CHECK MY NEW MATCH", newMatch.events);
+        this.repository.InsertMatch(match);
+      })
+      // console.log("CHECK MY EVENTS", match);
+
     })
   }
 
@@ -150,6 +165,19 @@ class Message{
 }
 
 class Parse{
+  public ParseEventPlayers(match : Match, callback : Function){
+    let counter = 0;
+    match.events.forEach((ev: MatchEvent) => {
+      let player : Player = new Player(ev.player.id, ev.player.name, ev.player.goals, ev.player.assists, ev.player.redcards, ev.player.yellowcards);
+      ev.player = player;
+      if (counter === match.events.length - 1){
+        callback(match);
+      }
+      counter++;
+    })
+
+  }
+
   public ParseTeams(arr : Array<ITeam>) : Array<Team>{
     let newArr : Array<Team> = [];
     for (let i of arr){
@@ -258,6 +286,50 @@ class Repository{
       callback(amount);
     })
   }
+  public InsertMatch(match : Match){
+    let firstTeamId : number = match.firstTeam.id;
+    let secondTeamId : number = match.secondTeam.id;
+    // let date : string = match.date.toJSON().slice(0, 19).replace('T', ' ');
+    let firstTeamScore = match.firstTeamScore;
+    let secondTeamScore = match.secondTeamScore;
+    // let events : Array<MatchEvent> = match.events;
+    this.InitMatchEvents(match.events, match);
+    // console.log("CHECK MY EVENTS", match.events);
+  }
+  private InitMatchEvents(events : Array<MatchEvent>, match : Match){
+    events.forEach((ev : MatchEvent) => {
+      let player : Player = ev.player;
+      console.log("CHECK PLAYER",ev, ev.player);
+      this.UpdatePlayerStats(player, ev.type);
+      
+
+      this.GetTeamIdByPlayer(player, (teamId : number) => {
+        if (ev.type == "goal"){
+          console.log("==========================================================");
+          if (match.firstTeam.id === teamId){
+            match.firstTeamScore += 1;
+            console.log(match);
+          }
+          else if (match.secondTeam.id === teamId){
+            match.secondTeamScore += 1;
+            console.log(match);
+          }
+        }
+      })      
+    })
+  }
+  private UpdatePlayerStats(player : Player, type : string){
+    console.log(player.id);
+    con.query(`UPDATE player SET ${type}s = ${type}s + 1 WHERE id = ${player.id}`);
+  }
+  private GetTeamIdByPlayer(player : Player, callback : Function){
+    con.query(`SELECT * FROM playerinteam WHERE playerid = ${player.id}`, (err : Error, result : Array<IPlayerInTeam>) => {
+      if (err) throw err;
+
+      callback(result[0].teamid);
+    })
+  }
+  
   // public Get
 
 }
@@ -271,14 +343,6 @@ class Match{
   private _secondTeamScore : number;
   private _events : Array<MatchEvent>;
 
-  get id(){
-    return this._id;
-  }
-  
-  set id(id : number){
-    this._id = id;
-  }
-
   constructor(firstTeam : Team, secondTeam : Team, date : Date, firstTeamScore : number, secondTeamScore : number, events : Array<MatchEvent>){
     this._firstTeam = firstTeam;
     this._secondTeam = secondTeam;
@@ -286,6 +350,41 @@ class Match{
     this._firstTeamScore = firstTeamScore;
     this._secondTeamScore = secondTeamScore;
     this._events = events;
+  }
+  
+  get id(){
+    return this._id;
+  }
+  
+  set id(id : number){
+    this._id = id;
+  }
+  set events(events : Array<MatchEvent>){
+    this._events = events;
+  }
+  get events(){
+    return this._events;
+  }
+  get firstTeam(){
+    return this._firstTeam;
+  }
+  get secondTeam(){
+    return this._secondTeam;
+  }
+  get date(){
+    return this._date;
+  }
+  get firstTeamScore(){
+    return this._firstTeamScore;
+  }
+  get secondTeamScore(){
+    return this._secondTeamScore;
+  }
+  set firstTeamScore(firstTeamScore : number){
+    this._firstTeamScore = firstTeamScore;
+  }
+  set secondTeamScore(secondTeamScore : number){
+    this._secondTeamScore = secondTeamScore;
   }
 }
 
@@ -301,6 +400,18 @@ class MatchEvent{
     this._player = player;
     this._time = time;
   }
+  get player(){
+    return this._player;
+  }
+  get type(){
+    return this._type;
+  }
+  get time(){
+    return this._time;
+  }
+  set player(player : Player){
+    this._player = player;
+  }
 }
 
 interface IEventType{
@@ -308,6 +419,10 @@ interface IEventType{
   name : string;
 }
 
+interface IPlayerInTeam{
+  playerid : number;
+  teamid : number;
+}
 
 
 let server = new Server();

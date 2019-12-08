@@ -96,23 +96,24 @@ var CreateMatchUI = /** @class */ (function () {
                 }
                 else {
                     alert("created");
-                    var date = new Date(document.querySelector("#match-date-time-input").value);
+                    var date_1 = new Date(document.querySelector("#match-date-time-input").value);
                     var dateString_1 = document.querySelector("#match-date-time-input").value;
-                    console.log(date);
+                    console.log(date_1);
                     var firstTeamIdNumber = parseInt(firstTeamId);
                     var secondTeamIdNumber = parseInt(secondTeamId);
                     var teams = [firstTeamIdNumber, secondTeamIdNumber];
-                    $.post("/create-match", { data: teams, date: date }, function (message) {
+                    $.post("/create-match", { data: teams, date: date_1 }, function (message) {
                         var allPlayers = [];
                         allPlayers.push.apply(allPlayers, message._firstTeamPlayers);
                         allPlayers.push.apply(allPlayers, message._secondTeamPlayers);
-                        _this.CreateEventsWindow(allPlayers, dateString_1, message._eventtype);
+                        _this.CreateEventsWindow(allPlayers, dateString_1, message._eventtype, date_1);
+                        _this.CreateMatchButtonClick();
                     });
                 }
             }
         });
     };
-    CreateMatchUI.prototype.CreateEventsWindow = function (players, date, eventtype) {
+    CreateMatchUI.prototype.CreateEventsWindow = function (players, date, eventtype, matchStarts) {
         var playersSelect = document.querySelector("#players-select");
         var eventsSelect = document.querySelector("#events-select");
         var dateTimeInput = document.querySelector("#event-time-input");
@@ -130,9 +131,9 @@ var CreateMatchUI = /** @class */ (function () {
             option.innerText = event.name;
             eventsSelect.appendChild(option);
         });
-        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput);
+        this.CreateEventButtonClick(playersSelect, eventsSelect, players, dateTimeInput, matchStarts);
     };
-    CreateMatchUI.prototype.CreateEventButtonClick = function (playersSelect, eventsSelect, players, dateTimeInput) {
+    CreateMatchUI.prototype.CreateEventButtonClick = function (playersSelect, eventsSelect, players, dateTimeInput, matchStarts) {
         var _this = this;
         var button = document.querySelector("#add-event");
         button.addEventListener("click", function (event) {
@@ -144,9 +145,14 @@ var CreateMatchUI = /** @class */ (function () {
             var oneEventId = parseInt(oneEvent.value);
             _this.FindPlayer(playerId, players, function (playerToAdd) {
                 console.log(dateTimeInput);
-                var matchEvent = new MatchEvent(4, oneEvent.textContent, playerToAdd, new Date(dateTimeInput.value), oneEventId);
-                console.log(matchEvent);
-                _this.AddNewEvent(matchEvent);
+                if (_this.CheckEventType(matchStarts, new Date(dateTimeInput.value))) {
+                    var matchEvent = new MatchEvent(_this.matchEvents.length, oneEvent.textContent, playerToAdd, new Date(dateTimeInput.value), oneEventId);
+                    console.log(matchEvent);
+                    _this.AddNewEvent(matchEvent, matchStarts);
+                }
+                else {
+                    alert("Incorrect time");
+                }
             });
         });
     };
@@ -157,12 +163,68 @@ var CreateMatchUI = /** @class */ (function () {
             }
         });
     };
-    CreateMatchUI.prototype.AddNewEvent = function (newEvent) {
+    CreateMatchUI.prototype.AddNewEvent = function (newEvent, matchStarts) {
         this.matchEvents.push(newEvent);
         var matchEventsElement = document.querySelector("body > main > div.content > div.match-events");
-        var newEventElement = document.createElement('div');
-        newEventElement.textContent = newEvent._player.name + " | " + newEvent._type + " | " + newEvent._time.toString();
+        var newEventElement = this.CreateNewElement("div", "new-event", "");
+        var playerElement = this.CreateNewElement("div", "ev player", newEvent.player.name);
+        var eventElement = this.CreateNewElement("div", "ev event", newEvent.type);
+        var eventTime = this.CreateNewElement("div", "ev time", this.CountMinutesDifference(matchStarts, newEvent.time).toString() + "'");
+        var removeButton = this.CreateNewElement("div", "btn remove", "X");
+        removeButton.setAttribute("data-event-id", newEvent.id.toString());
+        newEventElement.appendChild(playerElement);
+        newEventElement.appendChild(eventElement);
+        newEventElement.appendChild(eventTime);
+        newEventElement.appendChild(removeButton);
+        this.RemoveEventButtonClick(removeButton, newEventElement);
         matchEventsElement.appendChild(newEventElement);
+    };
+    CreateMatchUI.prototype.CountMinutesDifference = function (first, second) {
+        var diffTime = Math.abs(first.getTime() - second.getTime());
+        var diffMinutes = Math.ceil(diffTime / (1000 * 60));
+        return diffMinutes;
+    };
+    CreateMatchUI.prototype.CheckEventType = function (matchStarts, eventTime) {
+        var diffTime = eventTime.getTime() - matchStarts.getTime();
+        var diffMinutes = Math.ceil(diffTime / (1000 * 60));
+        if (diffTime < 0 || diffMinutes > 95) {
+            return false;
+        }
+        return true;
+    };
+    CreateMatchUI.prototype.CreateNewElement = function (tag, className, textContent) {
+        var newElement = document.createElement(tag);
+        newElement.className = className;
+        newElement.textContent = textContent;
+        return newElement;
+    };
+    CreateMatchUI.prototype.RemoveEventButtonClick = function (button, eventElement) {
+        var _this = this;
+        button.addEventListener("click", function (event) {
+            var id = parseInt(button.getAttribute("data-event-id"));
+            _this.FindEventById(id, function (ev) {
+                var index = _this.matchEvents.indexOf(ev);
+                if (index > -1) {
+                    _this.matchEvents.splice(index, 1);
+                    eventElement.remove();
+                }
+            });
+        });
+    };
+    CreateMatchUI.prototype.FindEventById = function (id, callback) {
+        this.matchEvents.forEach(function (ev) {
+            if (ev.id === id) {
+                callback(ev);
+            }
+        });
+    };
+    CreateMatchUI.prototype.CreateMatchButtonClick = function () {
+        var _this = this;
+        var createMatchButton = document.querySelector("#create-match-with-events");
+        createMatchButton.addEventListener("click", function () {
+            console.log(_this.matchEvents);
+            $.post("/create-match-events", { matchEvents: _this.matchEvents });
+        });
     };
     return CreateMatchUI;
 }());
@@ -188,11 +250,11 @@ var Player = /** @class */ (function () {
 }());
 var MatchEvent = /** @class */ (function () {
     function MatchEvent(id, type, player, time, typeEventId) {
-        this._id = id;
-        this._type = type;
-        this._player = player;
-        this._time = time;
-        this._typeEventId = typeEventId;
+        this.id = id;
+        this.type = type;
+        this.player = player;
+        this.time = time;
+        this.typeEventId = typeEventId;
     }
     return MatchEvent;
 }());
