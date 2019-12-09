@@ -59,6 +59,14 @@ main > div.content table.tournament-table {
 main > div.content table.tournament-table th, main > div.content table.tournament-table td{
     border-bottom: 1px solid #2B3D52;
 }
+body > main div.content > div.header{
+    font-size: 40px;
+    text-align: center;
+}
+body > main div.content > div.manager{
+    font-size: 30px;
+    margin: 10px 0 10px 20px;
+}
 
 main > div.content .select-teams{
     display: flex;
@@ -109,9 +117,13 @@ body > main > div.content div.match-events > div.new-event > div.btn:hover{
 #player  div.stats > div.line > div.st{
     flex: 1;
 }
+#sort-by{
+    margin-left : 20px;
+}
 #stats  div.line{
     display: flex;
 }
 #stats  div.line > div.st{
     flex: 1;
+    margin: 5px 0 5px 20px;
 }

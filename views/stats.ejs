@@ -22,6 +22,7 @@
                         <option value="asc">Increase</option>
                     </select>
                     <button class="submit">Submit</button>
+                    <br> <br>
                     <div class="line">
                         <div class="st player">Player</div>
                         <div class="st goals">Goals</div>
@@ -29,6 +30,7 @@
                         <div class="st yellow-cards">Yellow Cards</div>
                         <div class="st red-cards">Red Cards</div>
                     </div>
+                    <br>
                     <% players.forEach((el) => { %>
                         <div class="line">
                             <div class="st player"> <a href="/player/<%= el.id %>" data-type=<%= el.id %></a> <%= el.name %></a></div>

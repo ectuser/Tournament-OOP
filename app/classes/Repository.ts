@@ -10,6 +10,7 @@ import {IMatch} from "../interfaces/IMatch"
 import {Match} from "./Match";
 import {IPlayerInTeam} from "../interfaces/IPlayerInTeam"
 import {IEvent} from "../interfaces/IEvent"
+import {MatchEvent} from "../classes/MatchEvent"
 let mysql = require('mysql');
 let bodyParser = require('body-parser');
 let con = mysql.createConnection({
@@ -149,11 +150,6 @@ export class Repository{
         })
   
       })
-    }
-    public GetEvents(match : Match){
-      // con.query(`select * from event where event.matchid = match.id`, (err : Error, result : Array<>) => {
-  
-      // })
     }
     public GetPlayersStats(type : string, status : string, callback : Function){
       console.log(`select * from player order by ${type} ${status};`);
